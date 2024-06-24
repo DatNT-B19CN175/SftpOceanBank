@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class Config {
     @Bean
-    public JavaSwing javaSwing(SFTPService sftpService) {
-        return new JavaSwing(sftpService);
+    public JavaSwing javaSwing() {
+        return new JavaSwing();
     }
 
     @Bean
