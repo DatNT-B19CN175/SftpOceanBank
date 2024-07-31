@@ -2,13 +2,17 @@ package com.example.javaswing;
 
 
 import com.toedter.calendar.JDateChooser;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Calendar;
 import java.util.Date;
 
+@Component
 public class JavaSwing extends JFrame {
     private JPanel panelMain;
     private JPanel panel1;
@@ -21,11 +25,18 @@ public class JavaSwing extends JFrame {
     private JLabel lbl2;
     private JLabel lbl3;
     private JPanel panel3;
+    private JButton btnEnabledAuto;
+    private JButton btnDisabledAuto;
+    private JPanel panel4;
+    private JPanel southPanel;
+    private JPanel panel5;
+    private JLabel lbl4;
     private JDateChooser dateChooser;
-    private final SFTPService sftpService;
+    @Autowired
+    private SFTPService sftpService;
 
     public JavaSwing() {
-        this.sftpService = new SFTPService();
+//        this.sftpService = new SFTPService();
         panelMain = new JPanel();
         panelMain.setLayout(new BorderLayout());
         setContentPane(panelMain);
@@ -39,33 +50,60 @@ public class JavaSwing extends JFrame {
         panel1 = new JPanel();
         panel2 = new JPanel();
         panel3 = new JPanel();
+        panel4 = new JPanel();
+        panel5 = new JPanel();
+        southPanel = new JPanel();
+        southPanel.setLayout(new BorderLayout());
         btnControlData = new JButton("Control Data");
         btnReadFile = new JButton("Read File");
         btnGetFile = new JButton("Get File");
         btnUploadSftp = new JButton("Upload Sftp");
+        btnEnabledAuto = new JButton("Enable Auto");
+        btnDisabledAuto = new JButton("Disable Auto");
         lbl1 = new JLabel("Ngày chạy đối soát manual: (Click chức năng chọn NO)");
         lbl2 = new JLabel("Ngân Hàng TNHH MTV Đại Dương");
         lbl3 = new JLabel("Phần mềm tra soát tự động");
+        lbl4 = new JLabel("Hệ thống đang chạy thủ công");
         dateChooser = new JDateChooser();
+
+        panelMain.add(southPanel, BorderLayout.SOUTH);
 
         // Khởi tạo các thành phần giao diện
         init1();
         init2();
         init3();
+        init4();
+        init5();
     }
 
 
     private void init1() {
         // Khởi tạo và thêm nút
         panel1.setLayout(new FlowLayout(FlowLayout.CENTER, 50, 20));
-        btnControlData.setPreferredSize(new Dimension(120, 100));
-        btnReadFile.setPreferredSize(new Dimension(120, 100));
-        btnGetFile.setPreferredSize(new Dimension(120, 100));
-        btnUploadSftp.setPreferredSize(new Dimension(120, 100));
+        btnControlData.setPreferredSize(new Dimension(120, 80));
+        btnReadFile.setPreferredSize(new Dimension(120, 80));
+        btnGetFile.setPreferredSize(new Dimension(120, 80));
+        btnUploadSftp.setPreferredSize(new Dimension(120, 80));
         panel1.add(btnControlData);
         panel1.add(btnReadFile);
         panel1.add(btnGetFile);
         panel1.add(btnUploadSftp);
+
+        // Them hanh dong cho nut "Control Data"
+        btnControlData.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controlData();
+            }
+        });
+
+        // Them hanh dong cho nut "Read File"
+        btnReadFile.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                readFile();
+            }
+        });
 
         // Thêm hành động cho nút "Get File"
         btnGetFile.addActionListener(new ActionListener() {
@@ -75,7 +113,15 @@ public class JavaSwing extends JFrame {
             }
         });
 
-        panelMain.add(panel1, BorderLayout.SOUTH);
+        //Them hanh dong cho nut "Upload Sftp"
+        btnUploadSftp.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                uploadSftp();
+            }
+        });
+
+        southPanel.add(panel1, BorderLayout.NORTH);
     }
 
     private void init2() {
@@ -98,11 +144,77 @@ public class JavaSwing extends JFrame {
         panelMain.add(panel3, BorderLayout.NORTH);
     }
 
+    private void init4() {
+        panel4.setLayout(new FlowLayout(FlowLayout.CENTER,10,10));
+        btnEnabledAuto.setPreferredSize(new Dimension(100,30));
+        btnDisabledAuto.setPreferredSize(new Dimension(100,30));
+        panel4.add(btnEnabledAuto);
+        panel4.add(btnDisabledAuto);
+
+        //Them hanh dong cho nut Enabled Auto
+        btnEnabledAuto.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                enableAuto();
+            }
+        });
+
+        //Them hanh dong cho nut Disabled Auto
+        btnDisabledAuto.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                disableAuto();
+            }
+        });
+
+        southPanel.add(panel4, BorderLayout.WEST);
+    }
+
+    private void init5() {
+        panel5.setLayout(new FlowLayout(FlowLayout.CENTER,10,10));
+        lbl4.setHorizontalAlignment(SwingConstants.CENTER);
+        lbl4.setPreferredSize(new Dimension(400,30));
+        panel5.add(lbl4);
+
+        southPanel.add(panel5, BorderLayout.EAST);
+    }
+
+    private void controlData(){
+        Date selectedDate = dateChooser.getDate();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(selectedDate);
+        calendar.add(Calendar.DAY_OF_YEAR, -1);
+        Date previousDate = calendar.getTime();
+        sftpService.controlData(previousDate);
+        JOptionPane.showMessageDialog(this,"hello swing");
+    }
+
+    private void readFile(){
+        Date selectedDate = dateChooser.getDate();
+        sftpService.readFile(selectedDate);
+        JOptionPane.showMessageDialog(this,"hello swing");
+    }
+
     private void getFile() {
         //todo code here
         Date selectedDate = dateChooser.getDate();
-        sftpService.performSFTPTask(selectedDate);
+        sftpService.getFile(selectedDate);
         JOptionPane.showMessageDialog(this, "hello swing");
+    }
+
+    private void uploadSftp(){
+        Date selectedDate = dateChooser.getDate();
+        sftpService.uploadSftp(selectedDate);
+        JOptionPane.showMessageDialog(this, "hello swing");
+    }
+
+    private void enableAuto() {
+        sftpService.enableAuto();
+        lbl4.setText("Hệ thống đang chạy tự động lúc 14h00 mỗi ngày");
+    }
+
+    private void disableAuto() {
+        lbl4.setText("Hệ thống đang chạy thủ công");
     }
 
 //    private void createUIComponents() {

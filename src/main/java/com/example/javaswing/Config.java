@@ -5,10 +5,10 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class Config {
-    @Bean
-    public JavaSwing javaSwing() {
-        return new JavaSwing();
-    }
+//    @Bean
+//    public JavaSwing javaSwing() {
+//        return new JavaSwing();
+//    }
 
     @Bean
     public SFTPService sftpService() {

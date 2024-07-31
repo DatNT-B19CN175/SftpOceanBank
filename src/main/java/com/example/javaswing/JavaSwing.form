@@ -1,47 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.example.javaswing.JavaSwing">
-  <grid id="27dc6" binding="panelMain" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="panelMain" layout-manager="GridLayoutManager" row-count="3" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="100" left="50" bottom="100" right="50"/>
     <constraints>
-      <xy x="20" y="20" width="615" height="407"/>
+      <xy x="20" y="20" width="615" height="439"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
-      <grid id="fc31f" binding="panel1" layout-manager="FlowLayout" hgap="4" vgap="4" flow-align="1">
-        <constraints>
-          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-        <border type="none"/>
-        <children>
-          <component id="7c1ef" class="javax.swing.JButton" binding="btnControlData">
-            <constraints/>
-            <properties>
-              <text value="Control Data"/>
-            </properties>
-          </component>
-          <component id="47440" class="javax.swing.JButton" binding="btnReadFile">
-            <constraints/>
-            <properties>
-              <text value="Read File"/>
-            </properties>
-          </component>
-          <component id="b0461" class="javax.swing.JButton" binding="btnGetFile">
-            <constraints/>
-            <properties>
-              <text value="Get File"/>
-            </properties>
-          </component>
-          <component id="441e1" class="javax.swing.JButton" binding="btnUploadSftp">
-            <constraints/>
-            <properties>
-              <enabled value="true"/>
-              <text value="Upload Sftp"/>
-            </properties>
-          </component>
-        </children>
-      </grid>
       <grid id="5ccde" binding="panel2" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -59,7 +25,7 @@
       </grid>
       <grid id="aa816" binding="panel3" layout-manager="FlowLayout" hgap="1" vgap="1" flow-align="0">
         <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
@@ -76,6 +42,94 @@
               <text value="Phần mềm tra soát tự động"/>
             </properties>
           </component>
+        </children>
+      </grid>
+      <grid id="283a7" binding="southPanel" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <grid id="fc31f" binding="panel1" layout-manager="FlowLayout" hgap="4" vgap="4" flow-align="1">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false">
+                <preferred-size width="412" height="54"/>
+              </grid>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="7c1ef" class="javax.swing.JButton" binding="btnControlData">
+                <constraints/>
+                <properties>
+                  <text value="Control Data"/>
+                </properties>
+              </component>
+              <component id="47440" class="javax.swing.JButton" binding="btnReadFile">
+                <constraints/>
+                <properties>
+                  <text value="Read File"/>
+                </properties>
+              </component>
+              <component id="b0461" class="javax.swing.JButton" binding="btnGetFile">
+                <constraints/>
+                <properties>
+                  <text value="Get File"/>
+                </properties>
+              </component>
+              <component id="441e1" class="javax.swing.JButton" binding="btnUploadSftp">
+                <constraints/>
+                <properties>
+                  <enabled value="true"/>
+                  <text value="Upload Sftp"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="32262" binding="panel4" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="dc26a" class="javax.swing.JButton" binding="btnEnabledAuto">
+                <constraints/>
+                <properties>
+                  <text value="Enabled Auto"/>
+                </properties>
+              </component>
+              <component id="47e43" class="javax.swing.JButton" binding="btnDisabledAuto">
+                <constraints/>
+                <properties>
+                  <text value="Disabled Auto"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="b84bd" binding="panel5" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="3ebff" class="javax.swing.JLabel" binding="lbl4">
+                <constraints/>
+                <properties>
+                  <text value="Hệ thống đang chạy thủ công"/>
+                </properties>
+              </component>
+              <hspacer id="c4e39">
+                <constraints/>
+              </hspacer>
+              <vspacer id="3ac13">
+                <constraints/>
+              </vspacer>
+            </children>
+          </grid>
         </children>
       </grid>
     </children>
