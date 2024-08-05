@@ -6,13 +6,14 @@ import java.time.LocalDateTime;
 
 @Component
 public class SchedulerToggle {
-    private boolean isAutoRunEnabled = true;
+    private boolean isAutoRunEnabled = false;
     private LocalDateTime lastRunTime;
 
     public boolean isAutoRunEnabled(){
         return isAutoRunEnabled;
     }
 
+    //Setter
     public void setAutoRunEnabled(boolean autoRunEnabled) {
         this.isAutoRunEnabled = autoRunEnabled;
     }
@@ -21,6 +22,7 @@ public class SchedulerToggle {
         return lastRunTime;
     }
 
+    //Setter
     public void setLastRunTime(LocalDateTime lastRunTime) {
         this.lastRunTime = lastRunTime;
     }

@@ -27,11 +27,8 @@ public interface GDMOCARepo extends JpaRepository<GDMOCA,String> {
                     @Param("token") String token, @Param("tdate") String tdate, @Param("rrc") String rrc,
                     @Param("trantime") Date trantime);
 
-//    TRUNC(TO_DATE(TDATE, 'DD/MM/YYYY HH24:MI:SS'))
-//    @Query(value = "SELECT g.MTI, g.TRANSID, g.BANKID, g.CUSTID, g.AMT, g.CCY, g.TOKEN, g.TDATE, g.RRC, g.TRANTIME \n" +
-//            "FROM GDMOCA g \n" +
-//            "WHERE g.TRANSID = :transid \n" +
-//            "      AND g.TOKEN = :token\n" +
-//            "      AND TRUNC(g.TRANTIME) = TRUNC(TO_DATE(:txtDate,'DD-MM-YYYY'))",nativeQuery = true)
+    @Modifying
+    @Query(value = "DELETE FROM GDMOCA g WHERE g.TDATE LIKE :tdate%",nativeQuery = true)
+    void deleteGDMOCA(@Param("tdate") String tdate);
 
 }

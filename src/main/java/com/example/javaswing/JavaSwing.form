@@ -44,7 +44,7 @@
           </component>
         </children>
       </grid>
-      <grid id="283a7" binding="southPanel" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="283a7" binding="southPanel" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -61,10 +61,10 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="7c1ef" class="javax.swing.JButton" binding="btnControlData">
+              <component id="b0461" class="javax.swing.JButton" binding="btnGetFile">
                 <constraints/>
                 <properties>
-                  <text value="Control Data"/>
+                  <text value="Get File"/>
                 </properties>
               </component>
               <component id="47440" class="javax.swing.JButton" binding="btnReadFile">
@@ -73,10 +73,10 @@
                   <text value="Read File"/>
                 </properties>
               </component>
-              <component id="b0461" class="javax.swing.JButton" binding="btnGetFile">
+              <component id="7c1ef" class="javax.swing.JButton" binding="btnControlData">
                 <constraints/>
                 <properties>
-                  <text value="Get File"/>
+                  <text value="Control Data"/>
                 </properties>
               </component>
               <component id="441e1" class="javax.swing.JButton" binding="btnUploadSftp">
@@ -128,6 +128,21 @@
               <vspacer id="3ac13">
                 <constraints/>
               </vspacer>
+            </children>
+          </grid>
+          <grid id="2340e" binding="panel6" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+            <constraints>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="afd24" class="javax.swing.JButton" binding="btnDeleteData">
+                <constraints/>
+                <properties>
+                  <text value="Delete Data"/>
+                </properties>
+              </component>
             </children>
           </grid>
         </children>

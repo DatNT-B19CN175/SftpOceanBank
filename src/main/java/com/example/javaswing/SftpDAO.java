@@ -1,12 +1,14 @@
 package com.example.javaswing;
 
 import com.jcraft.jsch.*;
+import lombok.extern.log4j.Log4j2;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+@Log4j2
 public class SftpDAO {
     public static KetNoi getInfo(){
         KetNoi ketNoi = null;
@@ -28,8 +30,9 @@ public class SftpDAO {
             ketNoi.setDirectory(directory);
             ketNoi.setDestination(destination);
         } catch (IOException e) {
-            System.out.println("Exception: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Cannot connect to spft.moca.vn. {}", e.getMessage());
+//            System.out.println("Exception: " + e.getMessage());
+//            e.printStackTrace();
         }
         return ketNoi;
     }
@@ -39,21 +42,26 @@ public class SftpDAO {
         try {
             JSch jsch = new JSch();
             Session sshSession = jsch.getSession(username, host, port);
-            System.out.println("Session created. ");
+            log.info("Session created.");
+            //System.out.println("Session created. ");
             sshSession.setPassword(password);
             Properties sshConfig = new Properties();
             sshConfig.put("StrictHostKeyChecking", "no");
             sshSession.setConfig(sshConfig);
             sshSession.connect();
-            System.out.println("Session connected.");
-            System.out.println("Opening Channel.");
+            log.info("Session connected.");
+            log.info("Opening channel.");
+//            System.out.println("Session connected.");
+//            System.out.println("Opening Channel.");
             Channel channel = sshSession.openChannel("sftp");
             channel.connect();
             sftp = (ChannelSftp) channel;
-            System.out.println("Connected to " + host + ".");
+            log.info("Connected to {}.", host);
+            //System.out.println("Connected to " + host + ".");
         }catch (Exception e){
-            System.out.println("Exception: " + e.getMessage());
-            e.printStackTrace();
+//            System.out.println("Exception: " + e.getMessage());
+//            e.printStackTrace();
+            log.error("Exception occurred while connecting SFTP. {}", e.getMessage());
         }
         return sftp;
     }
@@ -65,11 +73,15 @@ public class SftpDAO {
             FileInputStream fileInputStream = new FileInputStream(file);
             sftp.put(fileInputStream, file.getName());
             fileInputStream.close();
-            System.out.println("file da duoc tai len sftp");
+            log.info("Upload file '{}' to directory '{}' on SFTP successfully", file.getName(), directory);
+            //System.out.println("file da duoc tai len sftp");
             fileInputStream = null;
-        }catch (SftpException|IOException e){
-            System.out.println("Exception: " + e.getMessage());
-            e.printStackTrace();
+        }catch (SftpException e){
+            //System.out.println("Exception: " + e.getMessage());
+            //e.printStackTrace();
+            log.error("SFTP error occurred while uploading file '{}' to directory '{}': {}", uploadFile, directory, e.getMessage());
+        }catch (IOException e){
+            log.error("IO error occurred while reading file '{}': {}", uploadFile, e.getMessage());
         }
     }
 }

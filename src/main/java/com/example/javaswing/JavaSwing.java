@@ -31,9 +31,13 @@ public class JavaSwing extends JFrame {
     private JPanel southPanel;
     private JPanel panel5;
     private JLabel lbl4;
+    private JPanel panel6;
+    private JButton btnDeleteData;
     private JDateChooser dateChooser;
     @Autowired
     private SFTPService sftpService;
+    @Autowired
+    private SchedulerToggle schedulerToggle;
 
     public JavaSwing() {
 //        this.sftpService = new SFTPService();
@@ -52,14 +56,16 @@ public class JavaSwing extends JFrame {
         panel3 = new JPanel();
         panel4 = new JPanel();
         panel5 = new JPanel();
+        panel6 = new JPanel();
         southPanel = new JPanel();
         southPanel.setLayout(new BorderLayout());
-        btnControlData = new JButton("Control Data");
-        btnReadFile = new JButton("Read File");
         btnGetFile = new JButton("Get File");
+        btnReadFile = new JButton("Read File");
+        btnControlData = new JButton("Control Data");
         btnUploadSftp = new JButton("Upload Sftp");
         btnEnabledAuto = new JButton("Enable Auto");
         btnDisabledAuto = new JButton("Disable Auto");
+        btnDeleteData = new JButton("Delete Data");
         lbl1 = new JLabel("Ngày chạy đối soát manual: (Click chức năng chọn NO)");
         lbl2 = new JLabel("Ngân Hàng TNHH MTV Đại Dương");
         lbl3 = new JLabel("Phần mềm tra soát tự động");
@@ -74,26 +80,27 @@ public class JavaSwing extends JFrame {
         init3();
         init4();
         init5();
+        init6();
     }
 
 
     private void init1() {
         // Khởi tạo và thêm nút
         panel1.setLayout(new FlowLayout(FlowLayout.CENTER, 50, 20));
-        btnControlData.setPreferredSize(new Dimension(120, 80));
-        btnReadFile.setPreferredSize(new Dimension(120, 80));
         btnGetFile.setPreferredSize(new Dimension(120, 80));
+        btnReadFile.setPreferredSize(new Dimension(120, 80));
+        btnControlData.setPreferredSize(new Dimension(120, 80));
         btnUploadSftp.setPreferredSize(new Dimension(120, 80));
-        panel1.add(btnControlData);
-        panel1.add(btnReadFile);
         panel1.add(btnGetFile);
+        panel1.add(btnReadFile);
+        panel1.add(btnControlData);
         panel1.add(btnUploadSftp);
 
-        // Them hanh dong cho nut "Control Data"
-        btnControlData.addActionListener(new ActionListener() {
+        // Thêm hành động cho nút "Get File"
+        btnGetFile.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controlData();
+                getFile();
             }
         });
 
@@ -105,11 +112,11 @@ public class JavaSwing extends JFrame {
             }
         });
 
-        // Thêm hành động cho nút "Get File"
-        btnGetFile.addActionListener(new ActionListener() {
+        // Them hanh dong cho nut "Control Data"
+        btnControlData.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                getFile();
+                controlData();
             }
         });
 
@@ -176,45 +183,94 @@ public class JavaSwing extends JFrame {
         lbl4.setPreferredSize(new Dimension(400,30));
         panel5.add(lbl4);
 
-        southPanel.add(panel5, BorderLayout.EAST);
+        southPanel.add(panel5, BorderLayout.CENTER);
+    }
+
+    private void init6(){
+        panel6.setLayout(new FlowLayout(FlowLayout.CENTER, 10,10));
+        btnDeleteData.setPreferredSize(new Dimension(100,30));
+        panel6.add(btnDeleteData);
+
+        //Them hanh dong cho nut Delete Data
+        btnDeleteData.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                deleteData();
+            }
+        });
+
+        southPanel.add(panel6, BorderLayout.EAST);
     }
 
     private void controlData(){
         Date selectedDate = dateChooser.getDate();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(selectedDate);
-        calendar.add(Calendar.DAY_OF_YEAR, -1);
-        Date previousDate = calendar.getTime();
-        sftpService.controlData(previousDate);
-        JOptionPane.showMessageDialog(this,"hello swing");
+        if (selectedDate != null){
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(selectedDate);
+            calendar.add(Calendar.DAY_OF_YEAR, -1);
+            Date previousDate = calendar.getTime();
+            sftpService.controlData(previousDate);
+            JOptionPane.showMessageDialog(this,"Success!");
+        }else {
+            JOptionPane.showMessageDialog(this, "Date is null, cannot control data");
+        }
     }
 
     private void readFile(){
         Date selectedDate = dateChooser.getDate();
-        sftpService.readFile(selectedDate);
-        JOptionPane.showMessageDialog(this,"hello swing");
+        if (selectedDate != null){
+            sftpService.readFile(selectedDate);
+            JOptionPane.showMessageDialog(this,"Success!");
+        }else {
+            JOptionPane.showMessageDialog(this, "Date is null, cannot read file");
+        }
     }
 
     private void getFile() {
         //todo code here
         Date selectedDate = dateChooser.getDate();
-        sftpService.getFile(selectedDate);
-        JOptionPane.showMessageDialog(this, "hello swing");
+        if (selectedDate != null){
+            sftpService.getFile(selectedDate);
+            JOptionPane.showMessageDialog(this, "Success!");
+        }
+        else {
+            JOptionPane.showMessageDialog(this, "Date is null, cannot get file");
+        }
     }
 
     private void uploadSftp(){
         Date selectedDate = dateChooser.getDate();
-        sftpService.uploadSftp(selectedDate);
-        JOptionPane.showMessageDialog(this, "hello swing");
+        if (selectedDate != null){
+            sftpService.uploadSftp(selectedDate);
+            JOptionPane.showMessageDialog(this, "Success!");
+        }else {
+            JOptionPane.showMessageDialog(this, "Date is null, cannot upload file to SFTP");
+        }
     }
 
     private void enableAuto() {
+        schedulerToggle.setAutoRunEnabled(true);
         sftpService.enableAuto();
         lbl4.setText("Hệ thống đang chạy tự động lúc 14h00 mỗi ngày");
     }
 
     private void disableAuto() {
+        schedulerToggle.setAutoRunEnabled(false);
         lbl4.setText("Hệ thống đang chạy thủ công");
+    }
+
+    private void deleteData(){
+        Date selectedDate = dateChooser.getDate();
+        if (selectedDate != null){
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(selectedDate);
+            calendar.add(Calendar.DAY_OF_YEAR, -1);
+            Date previousDate = calendar.getTime();
+            sftpService.deleteData(previousDate);
+            JOptionPane.showMessageDialog(this, "Success!");
+        }else {
+            JOptionPane.showMessageDialog(this, "Date is null, cannot delete data");
+        }
     }
 
 //    private void createUIComponents() {

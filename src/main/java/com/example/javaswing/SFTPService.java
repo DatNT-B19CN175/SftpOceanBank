@@ -11,6 +11,7 @@ import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -27,10 +28,12 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Pattern;
 
 @Service
+@Log4j2
 public class SFTPService {
     @Autowired
     private GDMOCARepo gdmocaRepo;
@@ -45,14 +48,22 @@ public class SFTPService {
 
     //GET FILE
     public void getFile(Date date) {
-        if (date == null) {
-            System.out.println("Date is null, cannot proceed with SFTP task.");
-            return;
-        }
+//        if (date == null) {
+//            log.warn("Date is null, cannot proceed with SFTP task.");
+//            //System.out.println("Date is null, cannot proceed with SFTP task.");
+//            return;
+//        }
         if (!schedulerToggle.isAutoRunEnabled()){
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String formattedDate = dateFormat.format(date);
             LocalDateTime now = LocalDateTime.now();
-            System.out.println("Manual task perform at " + now);
-            schedulerToggle.setLastRunTime(now);
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String formattedLocalDateTime = now.format(dateTimeFormatter);
+            if (formattedDate.equals(formattedLocalDateTime)){
+                log.info("Manual task perform at {}", now);
+                //System.out.println("Manual task perform at " + now);
+                schedulerToggle.setLastRunTime(now);
+            }
         }
         try {
             ChannelSftp channelSftp = connectSftp();
@@ -61,12 +72,14 @@ public class SFTPService {
             SimpleDateFormat dateFormat = new SimpleDateFormat("MMddyy");
             String formattedDate = dateFormat.format(date);
             String remoteFile = "/DOWNLOAD/RECONCILIATION/" + formattedDate + "_OCEANBANK_MOCA.dat";
-            String downloadedFile = "C:/test/hello/" + formattedDate + "_OCEANBANK_MOCA.dat";
+            String downloadedFile = "C:/ctroldt/" + formattedDate + "_OCEANBANK_MOCA.dat";
 
             // Download a file
             channelSftp.get(remoteFile, Files.newOutputStream(Paths.get(downloadedFile)));
+            log.info("File downloaded successfully: {}",downloadedFile);
         } catch (Exception exception) {
-            System.out.println("Exception : " + exception.getMessage());
+            log.error("Exception occurred while downloading file: ",exception);
+            //System.out.println("Exception : " + exception.getMessage());
         }
     }
 
@@ -75,11 +88,12 @@ public class SFTPService {
     public void readFile(Date date){
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMddyy");
         String formattedDate = dateFormat.format(date);
-        String filename = "C:/test/hello/" + formattedDate + "_OCEANBANK_MOCA.dat";
+        String filename = "C:/ctroldt/" + formattedDate + "_OCEANBANK_MOCA.dat";
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(filename));
         } catch (FileNotFoundException e) {
+            log.error("Cannot find file {}",filename,e);
             throw new RuntimeException(e);
         }
         List<GDMOCA> listGDMOCA = new ArrayList<>();
@@ -88,18 +102,22 @@ public class SFTPService {
             try {
                 if (!((line = reader.readLine()) != null)) break;
             } catch (IOException e) {
+                log.error("Error reading file {}",filename,e);
                 throw new RuntimeException(e);
             }
             if (line.startsWith("HR[PRO]") || line.startsWith("TR[NOT]")) {
-                System.out.println("qk" + line);
+                log.debug("qk {}", line);
+                //System.out.println("qk" + line);
                 continue;
             }
             GDMOCA gd = new GDMOCA();
             try {
-                System.out.println("lay:" + line);
+                //System.out.println("lay:" + line);
+                log.debug("lay: {}", line);
                 String[] dt = line.split(Pattern.quote("["));
                 for (int i = 0; i < dt.length; i++) {
-                    System.out.println("dt[" + i + "]=" + dt[i].trim());
+                    log.debug("dt[{}] = {}", i, dt[i].trim());
+                    //System.out.println("dt[" + i + "]=" + dt[i].trim());
                     String[] detail = dt[i].split(Pattern.quote("]"));
                     for (int j = 0; j < detail.length; j++) {
                         if (i == 1)
@@ -123,16 +141,18 @@ public class SFTPService {
                     }
                 }
             } catch (Exception e) {
-                System.out.println("Exception: " + e.getMessage());
-                e.printStackTrace();
+//                System.out.println("Exception: " + e.getMessage());
+//                e.printStackTrace();
+                log.error("Exception occurred while processing : {}. {}", line, e.getMessage());
             }
             listGDMOCA.add(gd);
         }
         try {
             reader.close();
         } catch (IOException e) {
-            System.out.println("Exception: " + e.getMessage());
-            e.printStackTrace();
+//            System.out.println("Exception: " + e.getMessage());
+//            e.printStackTrace();
+            log.error("Error closing file {}. {}", filename, e.getMessage());
         }
         saveGDMOCA(listGDMOCA);
     }
@@ -151,14 +171,17 @@ public class SFTPService {
                     gdmocaRepo.saveGDMOCA(gdmoca.getTRANSID(),gdmoca.getMTI(),gdmoca.getBANKID(),
                             gdmoca.getCUSTID(),gdmoca.getAMT(),gdmoca.getCCY(),gdmoca.getTOKEN(),
                             gdmoca.getTDATE(),gdmoca.getRRC(),gdmoca.getTRANTIME());
+                    log.info("Save GDMOCA: {}", gdmoca.getTRANSID());
                 }
                 else {
-                    System.out.println("There is no data");
+                    log.info("There is no data");
+                    //System.out.println("There is no data");
                 }
             }
         }catch (ParseException e){
-            System.out.println("Exception: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Fail to parse date. {}", e.getMessage());
+//            System.out.println("Exception: " + e.getMessage());
+//            e.printStackTrace();
         }
     }
 
@@ -216,9 +239,11 @@ public class SFTPService {
                     mti = "1212";
                 }
                 Date trant = new Date(createDate.getTime());
-                System.out.println("kq:" + trant);
+                log.debug("kq: {}", trant);
+                //System.out.println("kq:" + trant);
                 SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                System.out.println(formatter.format(trant));
+                log.debug(formatter.format(trant));
+                //System.out.println(formatter.format(trant));
                 SimpleDateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
                 gdmoca.setMTI(mti);
                 gdmoca.setTRANSID(strTransId);
@@ -239,8 +264,10 @@ public class SFTPService {
                 }
                 gdmoca.setTRANTIME(createDate);
             }
-            System.out.println("strTransId:" + strTransId);
-            System.out.println("token:" + token);
+            log.debug("strTransId: {}", strTransId);
+            log.debug("token: {}", token);
+//            System.out.println("strTransId:" + strTransId);
+//            System.out.println("token:" + token);
             gdmocaList.add(gdmoca);
         }
         insertDoiSoat(gdmocaList);
@@ -277,7 +304,8 @@ public class SFTPService {
             }
             doiSoat.setRFAMT(rfamt);
             doiSoatRepo.save(doiSoat);
-            System.out.println("Ok insert xong");
+            log.info("Insert doi soat co TransID {} thanh cong", doiSoat.getTRANSID());
+//            System.out.println("Ok insert xong");
         }
     }
 
@@ -334,10 +362,10 @@ public class SFTPService {
         SimpleDateFormat formattedDTFile = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         data.add("TR[NOT]       " + i + "[DATE]" + formattedDTFile.format(date) + "[CSF]" + maHoa("DS_" + i + "_" + getCurrentDatev1()));
         SimpleDateFormat formatted2 = new SimpleDateFormat("MMddyy");
-        writeToFile(data, "C:\\ctroldt\\" + formatted2.format(date) + "_MOCA_OCEANBANK_TEST.dat");
+        writeToFile(data, "C:\\ctroldt\\" + formatted2.format(date) + "_MOCA_OCEANBANK.dat");
         KetNoi ketNoi = SftpDAO.getInfo();
         ChannelSftp channelSftp = SftpDAO.connect(ketNoi.getHost(), ketNoi.getPort(), ketNoi.getUsername(), ketNoi.getPassword());
-        SftpDAO.upload("/UPLOAD/", "C:\\ctroldt\\" + formatted2.format(date) + "_MOCA_OCEANBANK_TEST.dat", channelSftp);
+        SftpDAO.upload("/UPLOAD/", "C:\\ctroldt\\" + formatted2.format(date) + "_MOCA_OCEANBANK.dat", channelSftp);
     }
 
     //chuyen tu dang byte[] sang thap luc phan (hexadecimal)
@@ -365,10 +393,12 @@ public class SFTPService {
             for (byte b : hashInBytes){
                 sb.append(String.format("%02x", new Object[] { Byte.valueOf(b) }));
             }
-            System.out.println(sb.toString() + " do dai:" + sb.toString().length());
+            log.debug("{} do dai {}", sb.toString(), sb.toString().length());
+            //System.out.println(sb.toString() + " do dai:" + sb.toString().length());
         }catch (NoSuchAlgorithmException e){
-            System.out.println("Exception:" + e.getMessage());
-            e.printStackTrace();
+            log.error("Unsupported algorithm. {}", e.getMessage());
+//            System.out.println("Exception:" + e.getMessage());
+//            e.printStackTrace();
         }
         return sb.toString();
     }
@@ -376,7 +406,8 @@ public class SFTPService {
     private static String getCurrentDatev1(){
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
         Date date = new Date();
-        System.out.println(formatter.format(date));
+        log.debug(formatter.format(date));
+        //System.out.println(formatter.format(date));
         return formatter.format(date);
     }
 
@@ -391,8 +422,9 @@ public class SFTPService {
             }
             out.close();
         }catch (IOException e){
-            System.out.println("Exception: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error when trying to write to file at path {}. {}", path, e.getMessage());
+//            System.out.println("Exception: " + e.getMessage());
+//            e.printStackTrace();
         }
     }
 
@@ -404,7 +436,8 @@ public class SFTPService {
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime lastRunTime = schedulerToggle.getLastRunTime();
             if (lastRunTime == null || lastRunTime.toLocalDate().isBefore(now.toLocalDate())){
-                System.out.println("Scheduled task performed at 9:00 AM");
+                log.info("Scheduled task performed at 2:00 PM");
+                //System.out.println("Scheduled task performed at 9:00 AM");
                 Calendar calendar1 = Calendar.getInstance();
                 Calendar calendar2 = Calendar.getInstance();
                 calendar2.add(Calendar.DAY_OF_YEAR,-1);
@@ -419,12 +452,29 @@ public class SFTPService {
         }
     }
 
+    //DELETE DATA
+    @Transactional
+    public void deleteData(Date date){
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            String txtDate = dateFormat.format(date);
+            gdmocaRepo.deleteGDMOCA(txtDate);
+            log.info("Deleting data in GDMOCA");
+            doiSoatRepo.deleteDOISOAT(txtDate);
+            log.info("Deleting data in DOISOAT");
+        }catch (Exception e){
+            log.error("Unexpected error occurred. {}", e.getMessage());
+        }
+    }
+
     private ChannelSftp connectSftp() throws JSchException {
         JSch jsch = new JSch();
         String REMOTE_HOST = "sftp.moca.vn";
         String USERNAME = "oceanbank";
         String PASSWORD = "OJBbank123789!@#";
         int PORT = 65535;
+
+        log.info("Attempting to connect to SFTP server at {}:{} with username {}",REMOTE_HOST, PORT, USERNAME);
 
         Session jschSession = jsch.getSession(USERNAME, REMOTE_HOST, PORT);
 
@@ -433,11 +483,19 @@ public class SFTPService {
         config.put("StrictHostKeyChecking", "no");
         jschSession.setConfig(config);
         jschSession.setPassword(PASSWORD);
-        jschSession.connect();
 
-        ChannelSftp channelSftp = (ChannelSftp) jschSession.openChannel("sftp");
-        channelSftp.connect();
+        try {
+            jschSession.connect();
+            log.info("Connected to SFTP server session successfully");
 
-        return channelSftp;
+            ChannelSftp channelSftp = (ChannelSftp) jschSession.openChannel("sftp");
+            channelSftp.connect();
+            log.info("SFTP channel opened and connected successfully");
+
+            return channelSftp;
+        }catch (JSchException e){
+            log.error("Failed to connect to SFTP server at {}:{} with username {}: {}", REMOTE_HOST, PORT, USERNAME, e.getMessage());
+            throw e;
+        }
     }
 }
